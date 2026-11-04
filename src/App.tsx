@@ -37,7 +37,7 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
     try {
       if (navigator.share) {
         try {
-          await navigator.share({ title: 'Room for more', text: resultText(results), url: shareUrl });
+          await navigator.share({ title: 'The housing tradeoff', text: resultText(results), url: shareUrl });
           setCopyStatus('Result shared.');
           return;
         } catch (error) {
@@ -132,7 +132,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
   useEffect(() => {
-    document.title = screen === 'quiz' ? `${index + 1}/20 · ${q.title} — Room for more` : screen === 'results' ? 'Your results — Room for more' : screen === 'shared' ? 'Shared result — Room for more' : screen === 'about' ? 'About the quiz — Room for more' : 'Room for more — A housing tradeoff quiz';
+    document.title = screen === 'quiz' ? `${index + 1}/20 · ${q.title} — The housing tradeoff` : screen === 'results' ? 'Your results — The housing tradeoff' : screen === 'shared' ? 'Shared result — The housing tradeoff' : screen === 'about' ? 'About the quiz — The housing tradeoff' : 'The housing tradeoff';
     if (didMount.current) {
       mainRef.current?.querySelector<HTMLElement>('h1')?.focus();
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -179,7 +179,7 @@ export default function App() {
   return <>
     <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); mainRef.current?.querySelector<HTMLElement>('h1')?.focus(); }}>Skip to content</a>
     <header className="site-header">
-      <button className="brand" onClick={home} aria-label="Room for more — home">room for more.</button>
+      <button className="brand" onClick={home} aria-label="The housing tradeoff — home">The housing tradeoff</button>
       <nav aria-label="Main navigation">{screen === 'about'
         ? <button className="text-button" onClick={() => setScreen(returnScreen)}><Arrow back /> Back to {returnScreen === 'quiz' ? 'quiz' : returnScreen === 'results' ? 'results' : returnScreen === 'shared' ? 'shared result' : 'home'}</button>
         : <button className="text-button" onClick={showAbout}>About the quiz</button>}
