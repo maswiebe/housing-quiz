@@ -159,13 +159,16 @@ export default function App() {
     setScreen('quiz');
   }
   function select(answer: AnswerId) {
-    setAttempt(a => a ? answerQuestion(a, q.id, answer) : a);
+    if (attempt) advance(answerQuestion(attempt, q.id, answer));
+  }
+  function advance(updated: Attempt) {
+    const nextQuestion = QUESTIONS[index + 1] ?? QUESTIONS.find(item => !updated.answers[item.id]);
+    setAttempt(nextQuestion ? { ...updated, currentQuestionId: nextQuestion.id } : updated);
+    if (!nextQuestion) setScreen('results');
   }
   function next() {
     if (!attempt?.answers[q.id]) return;
-    if (index < QUESTIONS.length - 1) edit(QUESTIONS[index + 1].id);
-    else if (completed) setScreen('results');
-    else edit(QUESTIONS.find(item => !attempt.answers[item.id])!.id);
+    advance(attempt);
   }
   function showAbout() {
     if (screen !== 'about') setReturnScreen(screen);

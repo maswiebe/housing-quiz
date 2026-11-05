@@ -17,6 +17,8 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await page.getByRole('button', { name: 'Start the quiz' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
   await expect(page.getByRole('button', { name: 'Next question' })).toBeDisabled();
+  const initialOrder = await page.locator('.option-card').evaluateAll(cards => cards.map(c => c.getAttribute('data-answer')));
+  await page.screenshot({ path: testInfo.outputPath('question-tree.png'), fullPage: true });
   const choice = page.locator('[data-answer="allow_more"] button');
   await page.keyboard.press('Tab');
   if (!await choice.evaluate(el => el === document.activeElement)) await page.keyboard.press('Tab');
@@ -29,23 +31,28 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
     return target !== null && el.contains(target);
   })).toBe(true);
   await page.keyboard.press('Enter');
-  await expect(choice).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('A mature tree');
-  const initialOrder = await page.locator('.option-card').evaluateAll(cards => cards.map(c => c.getAttribute('data-answer')));
-  await page.screenshot({ path: testInfo.outputPath('question-tree.png'), fullPage: true });
-  await page.getByRole('button', { name: 'Next question' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
   await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(choice).toHaveAttribute('aria-pressed', 'true');
   await page.locator('[data-answer="require_feature"] button').click();
-  await expect(page.locator('[data-answer="allow_more"] button')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
   await page.reload();
   await expect(page.getByText('1 of 20 answered')).toBeVisible();
   await page.getByRole('button', { name: 'Continue the quiz' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
   expect(await page.locator('.option-card').evaluateAll(cards => cards.map(c => c.getAttribute('data-answer')))).toEqual(initialOrder);
   await expect(page.locator('[data-answer="require_feature"] button')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-answer="allow_more"] button')).toHaveAttribute('aria-pressed', 'false');
+  // Previously answered questions can still be reviewed without changing the answer.
   await page.getByRole('button', { name: 'Next question' }).click();
   for (let i = 1; i < 20; i++) {
     await expect(page.getByRole('heading', { level: 1 })).toContainText(QUESTIONS[i].title);
+    await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+    await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String(i));
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
     await expect(page.locator('.illustration svg')).toHaveCount(2);
     for (const option of ['allow_more', 'require_feature'] as const) {
       await expect(page.locator(`[data-answer="${option}"] .homes-count strong`)).toHaveText(String(QUESTIONS[i].options[option].netAdditionalHomes));
@@ -68,9 +75,8 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
     }
     if (i === 19) expect(await page.locator('.option-card').evaluateAll(cards => cards.map(c => c.getAttribute('data-answer')))).toEqual(['require_feature', 'allow_more']);
     await noOverflow(page);
-    await page.locator(`[data-answer="${i === 19 ? 'allow_more' : 'require_feature'}"] button`).click();
     if ([6, 7, 10, 14, 16, 17, 18, 19].includes(i)) await page.screenshot({ path: testInfo.outputPath(`question-${i + 1}.png`), fullPage: true });
-    await page.getByRole('button', { name: i === 19 ? 'See your results' : 'Next question', exact: true }).click();
+    await page.locator(`[data-answer="${i === 19 ? 'allow_more' : 'require_feature'}"] button`).click();
   }
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Your choices');
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
@@ -116,12 +122,18 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await page.locator('.review-group').first().locator('summary').click();
   await page.getByRole('button', { name: 'Edit answer 1: A mature tree', exact: true }).click();
   await page.locator('[data-answer="allow_more"] button').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
   await page.getByRole('button', { name: 'Return to results' }).click();
   await expect(page.locator('.result-main')).toContainText('2 of 20 scenarios');
+  await page.locator('.review-group').last().locator('summary').click();
+  await page.getByRole('button', { name: 'Edit answer 20: Staying through construction', exact: true }).click();
+  await page.locator('[data-answer="require_feature"] button').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your choices');
+  await expect(page.locator('.result-main')).toContainText('1 of 20 scenarios');
   await page.getByRole('button', { name: 'Start again', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button', { name: 'Keep my answers' }).click();
-  await expect(page.locator('.result-main')).toContainText('2 of 20 scenarios');
+  await expect(page.locator('.result-main')).toContainText('1 of 20 scenarios');
   await page.getByRole('button', { name: 'Start again', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Start again' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('A mature tree');
@@ -134,7 +146,6 @@ test('methodology can be read without losing the active question', async ({ page
   await page.goto('./');
   await page.getByRole('button', { name: 'Start the quiz' }).click();
   await page.locator('[data-answer="allow_more"] button').click();
-  await page.getByRole('button', { name: 'Next question' }).click();
   await page.getByRole('button', { name: 'About the quiz' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('About this quiz');
   await expect(page.locator('.reading-list a')).toHaveCount(4);
@@ -155,7 +166,6 @@ test('storage failures and questionnaire upgrades remain usable', async ({ page 
   await expect(page.getByText('Browser storage is unavailable.', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Start the quiz' }).click();
   await page.locator('[data-answer="allow_more"] button').click();
-  await page.getByRole('button', { name: 'Next question' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Room for front gardens');
 });
 

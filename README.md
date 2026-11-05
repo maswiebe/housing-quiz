@@ -2,6 +2,8 @@
 
 A responsive, illustrated housing tradeoff quiz. Twenty hypothetical choices ask what a city should permit or require, followed by a neutral overall result, three topic breakdowns, and editable answer review.
 
+Selecting an answer saves it and immediately advances to the next question. The final answer opens the results. Back returns to earlier questions; Next remains available when reviewing an already answered question.
+
 ## Run locally
 
 Requires Node.js 20.19+ (or 22.12+) and npm.
