@@ -2,7 +2,7 @@
 
 A responsive, illustrated housing tradeoff quiz. Twenty hypothetical choices ask what a city should permit or require, followed by a neutral overall result, three topic breakdowns, and editable answer review.
 
-Selecting an answer saves it and immediately advances to the next question. The final answer opens the results. Back returns to earlier questions; Next remains available when reviewing an already answered question.
+Selecting an answer saves it immediately, shows a checkmark and a green selected state for 450 ms, then advances to the next question. The final answer opens the results after the same confirmation. Choices are briefly disabled to prevent duplicate clicks; leaving the question cancels the pending advance. Back returns to earlier questions; Next remains available when reviewing an already answered question.
 
 ## Run locally
 

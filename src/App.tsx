@@ -6,6 +6,7 @@ import About from './components/About';
 import { parseSharedResult, shareResultUrl } from './lib/share';
 
 type Screen = 'home' | 'quiz' | 'results' | 'about' | 'shared';
+const ANSWER_CONFIRMATION_MS = 450;
 
 function Arrow({ back = false }: { back?: boolean }) {
   return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" style={back ? { transform: 'rotate(180deg)' } : undefined}><path d="M4 12h15m-6-6 6 6-6 6" /></svg>;
@@ -107,6 +108,7 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
 export default function App() {
   const [initial] = useState(loadAttempt);
   const [attempt, setAttempt] = useState<Attempt | null>(initial.attempt);
+  const [pendingAdvance, setPendingAdvance] = useState<Attempt | null>(null);
   const [notice, setNotice] = useState<LoadResult['notice']>(initial.notice);
   const [sharedResult, setSharedResult] = useState(() => parseSharedResult(window.location.hash));
   const [screen, setScreen] = useState<Screen>(sharedResult ? 'shared' : 'home');
@@ -142,6 +144,19 @@ export default function App() {
   useEffect(() => {
     if (restartOpen) dialogRef.current?.showModal(); else dialogRef.current?.close();
   }, [restartOpen]);
+  useEffect(() => {
+    if (!pendingAdvance) return;
+    // Leaving the question cancels its timer, while keeping the saved answer.
+    if (screen !== 'quiz' || attempt !== pendingAdvance) {
+      setPendingAdvance(null);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setPendingAdvance(null);
+      advance(pendingAdvance);
+    }, ANSWER_CONFIRMATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [pendingAdvance, attempt, screen, index]);
 
   function start() {
     setAttempt(newAttempt());
@@ -159,7 +174,10 @@ export default function App() {
     setScreen('quiz');
   }
   function select(answer: AnswerId) {
-    if (attempt) advance(answerQuestion(attempt, q.id, answer));
+    if (!attempt || pendingAdvance) return;
+    const updated = answerQuestion(attempt, q.id, answer);
+    setAttempt(updated);
+    setPendingAdvance(updated);
   }
   function advance(updated: Attempt) {
     const nextQuestion = QUESTIONS[index + 1] ?? QUESTIONS.find(item => !updated.answers[item.id]);
@@ -231,9 +249,9 @@ export default function App() {
               <Illustration question={q} answer={answer} />
               <div className="option-body">
                 <p className="option-description">{option.details.join(' ')}</p>
-                <button className="choice-button" aria-label={option.action} aria-pressed={selected} onClick={() => select(answer)}>
+                <button className="choice-button" aria-label={option.action} aria-pressed={selected} disabled={pendingAdvance !== null} onClick={() => select(answer)}>
                   <Check selected={selected} /><span>{answer === 'allow_more' ? 'Allow this proposal' : 'Require this alternative'}</span>
-                  {selected && <span className="sr-only">Selected</span>}
+                  {selected && <span className="choice-status" aria-hidden="true">Selected</span>}
                 </button>
               </div>
             </article>;
@@ -243,7 +261,7 @@ export default function App() {
           <button className="text-button" onClick={() => index === 0 ? setScreen('home') : edit(QUESTIONS[index - 1].id)}><Arrow back />{index === 0 ? 'Introduction' : 'Back'}</button>
           <div className="next-actions">
             {completed && index < 19 && <button className="text-button" onClick={() => setScreen('results')}>Return to results</button>}
-            <button className="button primary" disabled={!attempt.answers[q.id]} onClick={next}>{index === 19 ? 'See your results' : 'Next question'}<Arrow /></button>
+            <button className="button primary" disabled={!attempt.answers[q.id] || pendingAdvance !== null} onClick={next}>{index === 19 ? 'See your results' : 'Next question'}<Arrow /></button>
           </div>
         </div>
       </div>}

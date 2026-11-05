@@ -142,10 +142,55 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   expect(errors).toEqual([]);
 });
 
+test('answer confirmation stays visible before advancing and cancels when leaving the question', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.clock.install({ time: new Date('2026-11-05T12:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-05T12:00:01Z'));
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Start the quiz' }).click();
+  const choice = page.locator('[data-answer="allow_more"] button');
+  await choice.click();
+  await expect(choice).toHaveAttribute('aria-pressed', 'true');
+  await expect(choice.locator('.choice-status')).toHaveText('Selected');
+  await expect(choice.locator('.choice-mark svg')).toBeVisible();
+  await expect(choice).toBeDisabled();
+  await expect(page.locator('[data-answer="require_feature"] button')).toBeDisabled();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('A mature tree');
+  await noOverflow(page);
+  await page.screenshot({ path: testInfo.outputPath('answer-selected.png'), fullPage: true, animations: 'disabled' });
+  await page.clock.runFor(300);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('A mature tree');
+  await page.clock.runFor(200);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(choice).toBeEnabled();
+
+  await page.locator('[data-answer="require_feature"] button').click();
+  await page.getByRole('button', { name: 'About the quiz' }).click();
+  await page.clock.runFor(1000);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('About this quiz');
+  await page.getByRole('button', { name: 'Back to quiz' }).click();
+  await page.clock.runFor(1000);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
+  await expect(page.locator('[data-answer="require_feature"] button')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Next question' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(QUESTIONS[2].title);
+
+  // Refreshing during confirmation keeps the answer even though the timer is gone.
+  await choice.click();
+  await page.reload();
+  await expect(page.getByText('3 of 20 answered')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue the quiz' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(QUESTIONS[2].title);
+  await expect(choice).toHaveAttribute('aria-pressed', 'true');
+  await expect(choice).toBeEnabled();
+});
+
 test('methodology can be read without losing the active question', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: 'Start the quiz' }).click();
   await page.locator('[data-answer="allow_more"] button').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Room for front gardens');
   await page.getByRole('button', { name: 'About the quiz' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('About this quiz');
   await expect(page.locator('.reading-list a')).toHaveCount(4);

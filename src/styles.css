@@ -65,8 +65,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-vis
 .policy-question { margin-top: 12px; font-size: 14px; }
 .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .option-card { display: flex; flex-direction: column; position: relative; min-width: 0; border: 1px solid #d9dfd5; border-radius: 6px; background: #fff; }
-.option-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.option-card:has(.choice-button:hover) { border-color: #839b85; }
+.option-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: #f0f5ed; }
+.option-card:not(.selected):has(.choice-button:hover) { border-color: #839b85; }
 .homes-count { display: flex; align-items: baseline; gap: 10px; padding: 17px 22px 14px; }
 .homes-count strong { font-size: 30px; font-weight: 550; line-height: 1; letter-spacing: -.7px; }
 .homes-count > span { font-size: 14px; color: var(--muted); }
@@ -82,11 +82,14 @@ button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-vis
 .swatch.restricted { background: #5c806d; }
 .option-body { padding: 17px 22px 18px; display: flex; flex-direction: column; flex: 1; }
 .option-description { font-size: 14px; line-height: 1.6; flex: 1; }
-.choice-button { display: flex; align-items: center; gap: 9px; margin: 14px 0 0; padding: 9px 0; min-height: 40px; border: 0; background: none; text-align: left; font-weight: 550; font-size: 14px; color: #384d3d; }
+.choice-button { display: flex; align-items: center; gap: 9px; margin: 14px 0 0; padding: 10px 12px; min-height: 44px; border: 1px solid #cbd5c6; border-radius: 4px; background: #f8faf6; text-align: left; font-weight: 550; font-size: 14px; color: #384d3d; }
+.choice-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: white; }
+.choice-button:disabled { cursor: default; }
+.choice-status { margin-left: auto; font-size: 12px; font-weight: 500; }
 /* The visible choice button supplies keyboard behavior; its hit area covers the card. */
 .choice-button::after { content: ''; position: absolute; inset: 0; border-radius: 6px; }
 .choice-mark { width: 19px; height: 19px; border-radius: 50%; border: 1px solid #9ba995; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
-.choice-mark.checked { background: var(--accent); border-color: var(--accent); color: white; }
+.choice-mark.checked { background: white; border-color: white; color: var(--accent); }
 .question-navigation { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; }
 .next-actions { display: flex; align-items: center; gap: 22px; }
 summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 48px; }
