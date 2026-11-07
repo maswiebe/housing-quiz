@@ -1,6 +1,6 @@
 # The housing tradeoff
 
-A responsive, illustrated housing tradeoff quiz. Twenty hypothetical choices ask what a city should permit or require, followed by a neutral overall result, three topic breakdowns, and editable answer review.
+A responsive, illustrated housing tradeoff quiz. Ten hypothetical choices ask what a city should permit or require, followed by a neutral overall result, two topic breakdowns, and editable answer review.
 
 Selecting an answer saves it immediately, shows a checkmark and a green selected state for 450 ms, then advances to the next question. The final answer opens the results after the same confirmation. Choices are briefly disabled to prevent duplicate clicks; leaving the question cancels the pending advance. Back returns to earlier questions; Next remains available when reviewing an already answered question.
 
@@ -30,7 +30,8 @@ Browser tests use Google Chrome at `/usr/bin/google-chrome` when available. Othe
 
 ## Editing
 
-- `src/data/questions.ts`: all 20 questions, semantic answer IDs, home counts, assumptions, categories, illustration descriptions, and questionnaire version.
+- `src/data/questions.ts`: active questionnaire selection, visible question numbering, category totals, and version.
+- `src/data/question-bank.ts`: all 20 original questions, semantic answer IDs, home counts, assumptions, categories, and illustration descriptions. Unused questions and their SVG illustrations remain intact.
 - `src/components/Illustration.tsx`: matched, replaceable SVG site plans, elevations, floor plans, view comparisons, and composition diagrams. Exterior buildings have closed roof surfaces; stepped floors share a fixed rear wall.
 - `src/lib/quiz.ts`: pure scoring, answer updates, randomized persistent card order, and defensive browser storage.
 - `src/App.tsx`: introduction, compact quiz cards, results, expandable answer review, native sharing, and clipboard/manual-copy fallback.
@@ -40,11 +41,23 @@ Browser tests use Google Chrome at `/usr/bin/google-chrome` when available. Othe
 
 React + TypeScript + Vite; ordinary CSS, locally rendered SVGs, and system fonts. The npm lockfile records exact dependency versions. The original brief remains in `housing_quiz_codex_handoff.md`; `feedback.md` supersedes its initial counts and scale. The current dataset is the source of truth.
 
+## Ten-question selection and restoring the full quiz
+
+The active quiz uses the original Q1, Q3, Q4, Q6, Q7, Q8, Q9, Q11, Q12, and Q18, in that order, displayed as questions 1–10. Original IDs remain stable; the complete 20-question bank and all 40 illustrations are preserved.
+
+To restore the 20-question version, change this line in `src/data/questions.ts`:
+
+```ts
+export const ACTIVE_QUESTIONNAIRE = QUESTIONNAIRES.full;
+```
+
+Then rebuild and deploy. The introduction, progress, scoring, topic breakdowns, About page, and sharing all follow the active selection. Set it back to `QUESTIONNAIRES.short` for ten questions. The short and full editions use different questionnaire versions, so incompatible saved attempts prompt a fresh start instead of mixing answers. Existing shared results from either edition remain readable.
+
 ## Interpretation and assumptions
 
-Questionnaire version: `v5-draft-2026-10-29`. Each choice has one vote. A complete result requires all 20 valid answers; housing supply percentages are calculated from semantic IDs, never card positions or home-count differences. Q17 holds home counts equal and counts the two-bedroom option toward housing supply because it adds bedroom capacity. Topic denominators are 12, 5, and 3. Card order is randomized once per question per attempt and survives edits and refreshes. Q20 keeps the 2 → 4 option on the left and the 2 → 8 option on the right, as requested.
+Active questionnaire version: `v6-short-2026-11-06`. Each choice has one vote. A complete result requires all 10 active answers; housing supply percentages are calculated from semantic IDs, never card positions or home-count differences. Topic denominators are 9 for neighborhood choices and 1 for affordability. The full version uses denominators of 12, 5, and 3; its Q17 holds home counts equal and counts the two-bedroom option toward housing supply because it adds bedroom capacity. Card order is randomized once per question per attempt and survives edits and refreshes. The preserved Q20 keeps the 2 → 4 option on the left and the 2 → 8 option on the right, as requested.
 
-All home counts and diagrams are illustrative premises, not verified development, financial, solar, or safety analyses. Counts mean net additions; q20 separately shows the existing 2 homes and completed totals of 8 versus 4 (6 versus 2 net additions). Q18 compares 24 homes (20 market-rate, 4 restricted) with 16 (15 market-rate, 1 restricted), all restricted rents at 80% of the benchmark. Q19 compares 24 homes (22 market-rate, 2 restricted at 50%) with 16 (15 market-rate, 1 restricted at 80%). Restricted homes are included in every total. The stair scenario compares 12 two-bedroom homes around one central stair with 12 one-bedroom homes along a double-loaded corridor, with a stair at each end. Both designs have three storeys and four homes per floor; the floor plans draw two bedrooms or one bedroom in every apartment. The international context is sourced to [Smith & Mendoza, 2024, in HUD’s Cityscape](https://www.huduser.gov/portal/periodicals/cityscape/vol26num1/article25.html). These are schematic drawings, not compliance or safety findings. Supporting assumptions remain in the dataset; the expandable assumptions section and footer links were removed at the user’s request. Townhome scenarios use individual roof outlines for homes, with q2 spanning two parcels. Apartment proposals use four homes per full floor, up to six storeys; reduced floors are recorded explicitly in `homesByFloor` and shown in the captions. Drawn windows are not individual home counts; affordability composition squares each represent exactly one home, with four homes per row/floor. The studio comparison preserves 5,160 sq ft of apartment interiors (12 × 430 sq ft versus 8 × 645 sq ft).
+Across the full question bank, all home counts and diagrams are illustrative premises, not verified development, financial, solar, or safety analyses. Counts mean net additions; q20 separately shows the existing 2 homes and completed totals of 8 versus 4 (6 versus 2 net additions). Q18 compares 24 homes (20 market-rate, 4 restricted) with 16 (15 market-rate, 1 restricted), all restricted rents at 80% of the benchmark. Q19 compares 24 homes (22 market-rate, 2 restricted at 50%) with 16 (15 market-rate, 1 restricted at 80%). Restricted homes are included in every total. The stair scenario compares 12 two-bedroom homes around one central stair with 12 one-bedroom homes along a double-loaded corridor, with a stair at each end. Both designs have three storeys and four homes per floor; the floor plans draw two bedrooms or one bedroom in every apartment. The international context is sourced to [Smith & Mendoza, 2024, in HUD’s Cityscape](https://www.huduser.gov/portal/periodicals/cityscape/vol26num1/article25.html). These are schematic drawings, not compliance or safety findings. Supporting assumptions remain in the dataset; the expandable assumptions section and footer links were removed at the user’s request. Townhome scenarios use individual roof outlines for homes, with q2 spanning two parcels. Apartment proposals use four homes per full floor, up to six storeys; reduced floors are recorded explicitly in `homesByFloor` and shown in the captions. Drawn windows are not individual home counts; affordability composition squares each represent exactly one home, with four homes per row/floor. The studio comparison preserves 5,160 sq ft of apartment interiors (12 × 430 sq ft versus 8 × 645 sq ft).
 
 The result records stated choices in these scenarios. It is not a validated survey, inferred motive, personality score, prediction, or claim about housing actually prevented. Individual answers are never transmitted or collected. Sharing explicitly sends only the aggregate result and its link through the user’s chosen share target. Browser storage uses `room-for-more.attempt`; starting again replaces that attempt. Malformed or incompatible saves prompt a fresh attempt without combining versions.
 
@@ -58,6 +71,6 @@ The production site is static. Only `dist/` is published; local feedback, source
 
 ## Sharing
 
-“Share result” uses the device share dialog when supported, otherwise copies the main result and a link. If clipboard access is blocked, a selectable text field is shown. Links use a URL fragment such as `#result=16-20`; they contain only the overall count and denominator. The recipient sees that score and a button to take the quiz, with no per-question answers or topic breakdowns. Scores are user-shareable summaries, not authenticated records.
+“Share result” uses the device share dialog when supported, otherwise copies the main result and a link. If clipboard access is blocked, a selectable text field is shown. Links use a URL fragment such as `#result=8-10`; they contain only the overall count and denominator. The recipient sees that score and a button to take the quiz, with no per-question answers or topic breakdowns. Scores are user-shareable summaries, not authenticated records.
 
-Links use the site's current address and preserve its subdirectory. On the production site, shared links use `https://michaelwiebe.com/housing-quiz/#result=N-20`. A localhost link works only on the same computer.
+Links use the site's current address and preserve its subdirectory. On the production site, shared links use `https://michaelwiebe.com/housing-quiz/#result=N-10`. Legacy `#result=N-20` links still show their original score out of 20. A localhost link works only on the same computer.

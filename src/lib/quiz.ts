@@ -10,7 +10,7 @@ export interface Attempt {
 }
 export const STORAGE_KEY = 'room-for-more.attempt';
 export interface Score { fewerCount: number; moreCount: number; denominator: number; fewerPercent: number; morePercent: number }
-export type Results = Score & { categories: Record<CategoryId, Score> };
+export type Results = Score & { categories: Partial<Record<CategoryId, Score>> };
 export type LoadResult = { attempt: Attempt | null; notice: 'updated' | 'malformed' | 'unavailable' | null };
 
 export function newAttempt(random: () => number = Math.random): Attempt {
@@ -41,7 +41,7 @@ export function score(answers: Answers): Results | null {
   if (!isComplete(answers)) return null;
   return {
     ...scoreGroup(QUESTIONS.map(q => q.id), answers),
-    categories: Object.fromEntries(CATEGORIES.map(c => [c.id, scoreGroup(QUESTIONS.filter(q => q.category === c.id).map(q => q.id), answers)])) as Record<CategoryId, Score>,
+    categories: Object.fromEntries(CATEGORIES.map(c => [c.id, scoreGroup(QUESTIONS.filter(q => q.category === c.id).map(q => q.id), answers)])),
   };
 }
 export function resultText(results: Results): string {

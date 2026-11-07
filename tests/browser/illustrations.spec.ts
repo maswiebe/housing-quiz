@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { QUESTIONS, ANSWER_IDS } from '../../src/data/questions';
+import { QUESTION_BANK, ANSWER_IDS } from '../../src/data/question-bank';
 import { Illustration } from '../../src/components/Illustration';
 
 // Review artifacts, not pixel-baseline tests. Inspect every pair after SVG changes.
@@ -11,7 +11,7 @@ test('all 40 illustrations at the actual desktop and mobile card widths', async 
   await page.setViewportSize(mobile ? { width: 390, height: 844 } : { width: 1100, height: 1000 });
   const css = readFileSync('src/styles.css', 'utf8');
   for (let offset = 0; offset < 20; offset += 4) {
-    const rows = QUESTIONS.slice(offset, offset + 4).map(q => `
+    const rows = QUESTION_BANK.slice(offset, offset + 4).map(q => `
       <section class="gallery-row">
         <h2>${q.ordinal}. ${q.title}</h2>
         <div class="gallery-pair">${(q.id === 'q20' ? [...ANSWER_IDS].reverse() : ANSWER_IDS).map(answer => `

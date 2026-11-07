@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CATEGORIES, QUESTIONS, type AnswerId } from './data/questions';
+import { CATEGORIES, QUESTIONS, QUESTION_COUNT, HAS_BEDROOM_COMPARISON, type AnswerId } from './data/questions';
 import { answerQuestion, answeredCount, isComplete, loadAttempt, newAttempt, resultText, saveAttempt, score, type Attempt, type LoadResult, type Results } from './lib/quiz';
 import { Illustration } from './components/Illustration';
 import About from './components/About';
@@ -61,12 +61,12 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
     <h1 tabIndex={-1}>Your choices</h1>
     <section className="result-main" aria-label="Your overall results">
       <h2 className="result-headline">You support more homes <span>{results.morePercent}% of the time</span></h2>
-      <p>You prioritized housing supply in <strong>{results.moreCount} of 20 scenarios</strong>.</p>
+      <p>You prioritized housing supply in <strong>{results.moreCount} of {results.denominator} scenarios</strong>.</p>
     </section>
     <section className="domain-section" aria-labelledby="domain-title">
       <h2 id="domain-title">Housing supply choices by topic</h2>
       <dl className="domain-list">{CATEGORIES.map(category => {
-        const s = results.categories[category.id];
+        const s = results.categories[category.id]!;
         return <div className="domain-row" key={category.id}>
           <dt>{category.label}</dt>
           <dd><strong>{s.moreCount} / {s.denominator}</strong><span>{s.morePercent}%</span></dd>
@@ -134,7 +134,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
   useEffect(() => {
-    document.title = screen === 'quiz' ? `${index + 1}/20 · ${q.title} — The housing tradeoff` : screen === 'results' ? 'Your results — The housing tradeoff' : screen === 'shared' ? 'Shared result — The housing tradeoff' : screen === 'about' ? 'About the quiz — The housing tradeoff' : 'The housing tradeoff';
+    document.title = screen === 'quiz' ? `${index + 1}/${QUESTION_COUNT} · ${q.title} — The housing tradeoff` : screen === 'results' ? 'Your results — The housing tradeoff' : screen === 'shared' ? 'Shared result — The housing tradeoff' : screen === 'about' ? 'About the quiz — The housing tradeoff' : 'The housing tradeoff';
     if (didMount.current) {
       mainRef.current?.querySelector<HTMLElement>('h1')?.focus();
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -218,9 +218,9 @@ export default function App() {
       </div>}
       {screen === 'home' && <section className="landing">
         <h1 tabIndex={-1}>What would you trade for more homes?</h1>
-        <p className="landing-intro">20 illustrated choices about housing and the conditions we put on new homes.</p>
-        <p>Each owner proposes more homes or more bedrooms. Decide whether the city should allow the proposal or require the alternative.</p>
-        {count > 0 && <p className="save-note">{count} of 20 answered · {notice === 'unavailable' ? 'Progress in this tab only' : 'Saved on this device'}</p>}
+        <p className="landing-intro">{QUESTION_COUNT} illustrated choices about housing and the conditions we put on new homes.</p>
+        <p>Each owner proposes {HAS_BEDROOM_COMPARISON ? 'more homes or more bedrooms' : 'more homes'}. Decide whether the city should allow the proposal or require the alternative.</p>
+        {count > 0 && <p className="save-note">{count} of {QUESTION_COUNT} answered · {notice === 'unavailable' ? 'Progress in this tab only' : 'Saved on this device'}</p>}
         <div className="landing-actions">
           <button className="button primary" onClick={() => completed ? setScreen('results') : attempt && count > 0 ? setScreen('quiz') : start()}>
             {completed ? 'See your results' : count > 0 ? 'Continue the quiz' : 'Start the quiz'} <Arrow />
@@ -230,9 +230,9 @@ export default function App() {
       </section>}
       {screen === 'quiz' && attempt && <div className="quiz-page">
         <div className="quiz-progress">
-          <span>Question {index + 1} of 20</span>
-          <div className="progress-track" role="progressbar" aria-label="Answered questions" aria-valuenow={count} aria-valuemin={0} aria-valuemax={20}>
-            <span style={{ width: `${count * 5}%` }} />
+          <span>Question {index + 1} of {QUESTION_COUNT}</span>
+          <div className="progress-track" role="progressbar" aria-label="Answered questions" aria-valuenow={count} aria-valuemin={0} aria-valuemax={QUESTION_COUNT}>
+            <span style={{ width: `${100 * count / QUESTION_COUNT}%` }} />
           </div>
         </div>
         <div className="question-heading">
@@ -260,8 +260,8 @@ export default function App() {
         <div className="question-navigation">
           <button className="text-button" onClick={() => index === 0 ? setScreen('home') : edit(QUESTIONS[index - 1].id)}><Arrow back />{index === 0 ? 'Introduction' : 'Back'}</button>
           <div className="next-actions">
-            {completed && index < 19 && <button className="text-button" onClick={() => setScreen('results')}>Return to results</button>}
-            <button className="button primary" disabled={!attempt.answers[q.id] || pendingAdvance !== null} onClick={next}>{index === 19 ? 'See your results' : 'Next question'}<Arrow /></button>
+            {completed && index < QUESTION_COUNT - 1 && <button className="text-button" onClick={() => setScreen('results')}>Return to results</button>}
+            <button className="button primary" disabled={!attempt.answers[q.id] || pendingAdvance !== null} onClick={next}>{index === QUESTION_COUNT - 1 ? 'See your results' : 'Next question'}<Arrow /></button>
           </div>
         </div>
       </div>}
@@ -270,7 +270,7 @@ export default function App() {
     </main>
     <dialog ref={dialogRef} className="restart-dialog" onCancel={() => setRestartOpen(false)} aria-labelledby="restart-title" aria-describedby="restart-description">
       <h2 id="restart-title">Start again?</h2>
-      <p id="restart-description">This replaces your saved answers and starts a new set of 20 choices.</p>
+      <p id="restart-description">This replaces your saved answers and starts a new set of {QUESTION_COUNT} choices.</p>
       <div><button className="button secondary" autoFocus onClick={() => setRestartOpen(false)}>Keep my answers</button><button className="button primary" onClick={start}>Start again</button></div>
     </dialog>
   </>;
