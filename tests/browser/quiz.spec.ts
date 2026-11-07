@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { CATEGORIES, HAS_BEDROOM_COMPARISON, QUESTIONS, QUESTION_COUNT, QUESTIONNAIRES, QUESTIONNAIRE_VERSION } from '../../src/data/questions';
+import { HAS_BEDROOM_COMPARISON, QUESTIONS, QUESTION_COUNT, QUESTIONNAIRES, QUESTIONNAIRE_VERSION } from '../../src/data/questions';
 import { newAttempt, STORAGE_KEY } from '../../src/lib/quiz';
 
 async function noOverflow(page: Page) {
@@ -87,7 +87,10 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await expect(page.locator('.result-main')).toContainText(`You prioritized housing supply in 1 of ${QUESTION_COUNT} scenarios.`);
   await expect(page.locator('.result-headline')).toHaveText(`You support more homes ${100 / QUESTION_COUNT}% of the time`);
   await expect(page.locator('.review-row')).toHaveCount(QUESTION_COUNT);
-  await expect(page.locator('.domain-row')).toHaveCount(CATEGORIES.length);
+  await expect(page.getByRole('heading', { name: 'Housing supply choices by topic' })).toHaveCount(0);
+  await expect(page.locator('.domain-section')).toHaveCount(0);
+  await expect(page.locator('.review-group')).toHaveCount(1);
+  await expect(page.locator('.review-group summary')).toHaveText('All questions+');
   for (const [i, q] of QUESTIONS.entries()) {
     const row = page.locator('.review-row').nth(i);
     await expect(row.locator('.review-index')).toHaveText(String(i + 1));
@@ -127,14 +130,14 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await page.getByRole('button', { name: 'Share result' }).click();
   await expect(page.getByLabel('Your share text')).toBeVisible();
   expect(await page.getByLabel('Your share text').inputValue()).toContain(`1 of ${QUESTION_COUNT} scenarios (${100 / QUESTION_COUNT}%)`);
-  await expect(page.locator('.review-group').first()).not.toHaveAttribute('open');
-  await page.locator('.review-group').first().locator('summary').click();
+  await expect(page.locator('.review-group')).not.toHaveAttribute('open');
+  await page.locator('.review-group').locator('summary').click();
   await page.getByRole('button', { name: 'Edit answer 1: A mature tree', exact: true }).click();
   await page.locator('[data-answer="allow_more"] button').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(QUESTIONS[1].title);
   await page.getByRole('button', { name: 'Return to results' }).click();
   await expect(page.locator('.result-main')).toContainText(`2 of ${QUESTION_COUNT} scenarios`);
-  await page.locator('.review-group').last().locator('summary').click();
+  await page.locator('.review-group').locator('summary').click();
   await page.getByRole('button', { name: `Edit answer ${QUESTION_COUNT}: ${QUESTIONS.at(-1)!.title}`, exact: true }).click();
   await page.locator('[data-answer="require_feature"] button').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your choices');

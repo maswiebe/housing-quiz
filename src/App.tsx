@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CATEGORIES, QUESTIONS, QUESTION_COUNT, HAS_BEDROOM_COMPARISON, type AnswerId } from './data/questions';
+import { QUESTIONS, QUESTION_COUNT, HAS_BEDROOM_COMPARISON, type AnswerId } from './data/questions';
 import { answerQuestion, answeredCount, isComplete, loadAttempt, newAttempt, resultText, saveAttempt, score, type Attempt, type LoadResult, type Results } from './lib/quiz';
 import { Illustration } from './components/Illustration';
 import About from './components/About';
@@ -63,16 +63,6 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
       <h2 className="result-headline">You support more homes <span>{results.morePercent}% of the time</span></h2>
       <p>You prioritized housing supply in <strong>{results.moreCount} of {results.denominator} scenarios</strong>.</p>
     </section>
-    <section className="domain-section" aria-labelledby="domain-title">
-      <h2 id="domain-title">Housing supply choices by topic</h2>
-      <dl className="domain-list">{CATEGORIES.map(category => {
-        const s = results.categories[category.id]!;
-        return <div className="domain-row" key={category.id}>
-          <dt>{category.label}</dt>
-          <dd><strong>{s.moreCount} / {s.denominator}</strong><span>{s.morePercent}%</span></dd>
-        </div>;
-      })}</dl>
-    </section>
     <div className="result-actions">
       <button className="button primary" onClick={share} disabled={sharing}>Share result</button>
       <button className="button secondary" onClick={() => onEdit(QUESTIONS[0].id)}>Edit answers</button>
@@ -86,9 +76,9 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
     </div>}
     <section className="answer-review" aria-labelledby="review-title">
       <h2 id="review-title">Review your answers</h2>
-      {CATEGORIES.map(category => <details className="review-group" key={category.id}>
-        <summary><span>{category.label}</span><span className="expand-mark" aria-hidden="true">+</span></summary>
-        {QUESTIONS.filter(q => q.category === category.id).map(q => {
+      <details className="review-group">
+        <summary><span>All questions</span><span className="expand-mark" aria-hidden="true">+</span></summary>
+        {QUESTIONS.map(q => {
           const option = q.options[attempt.answers[q.id]!];
           return <div className="review-row" key={q.id}>
             <span className="review-index">{q.ordinal}</span>
@@ -100,7 +90,7 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
             <button className="text-button" onClick={() => onEdit(q.id)} aria-label={`Edit answer ${q.ordinal}: ${q.title}`}>Edit</button>
           </div>;
         })}
-      </details>)}
+      </details>
     </section>
   </div>;
 }

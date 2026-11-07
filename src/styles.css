@@ -104,15 +104,9 @@ details[open] > summary .expand-mark { transform: rotate(45deg); }
 .result-number > span { font-size: 42px; letter-spacing: -1px; margin-left: 3px; }
 .result-main > p { font-size: 16px; }
 .result-main strong { font-weight: 550; }
-.domain-section { margin-top: 35px; }
 .results-page h2 { font-size: 16px; margin-bottom: 14px; }
 .results-page .result-headline { max-width: 24ch; font-size: clamp(32px, 4vw, 44px); line-height: 1.2; letter-spacing: -1px; margin-bottom: 17px; }
 .result-headline > span { white-space: nowrap; }
-.domain-row { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 16px 0; border-top: 1px solid var(--line); font-size: 14px; }
-.domain-row dt { max-width: 440px; line-height: 1.5; }
-.domain-row dd { display: flex; gap: 24px; align-items: baseline; white-space: nowrap; }
-.domain-row dd strong { font-weight: 550; }
-.domain-row dd > span { color: var(--muted); width: 42px; text-align: right; }
 .result-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 24px 0 32px; }
 .result-actions > .text-button { margin-left: auto; }
 .copy-status { flex-basis: 100%; color: var(--accent); font-size: 13px; }
@@ -181,9 +175,6 @@ details[open] > summary .expand-mark { transform: rotate(45deg); }
   .results-page h1 { font-size: 29px; }
   .result-number { font-size: 64px; }
   .result-main > p { font-size: 15px; }
-  .domain-row { font-size: 13px; gap: 18px; }
-  .domain-row dd { display: block; text-align: right; }
-  .domain-row dd > span { display: block; font-size: 12px; margin-top: 4px; }
   .result-actions .button { font-size: 13px; padding: 11px 16px; }
   .result-actions > .text-button { margin-left: 0; font-size: 13px; }
   .review-group summary { font-size: 13px; }
@@ -205,7 +196,7 @@ details[open] > summary .expand-mark { transform: rotate(45deg); }
 @media print {
   .site-header nav, .result-actions, .review-row button, .copy-fallback { display: none; }
   .site-header, main { width: 100%; }
-  .result-main, .domain-row, .review-row { break-inside: avoid; }
+  .result-main, .review-row { break-inside: avoid; }
   body { background: white; }
   .results-page { max-width: none; }
   .review-group::details-content { content-visibility: visible; }
