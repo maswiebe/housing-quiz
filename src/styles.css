@@ -117,7 +117,8 @@ details[open] > summary .expand-mark { transform: rotate(45deg); }
 .answer-review { margin-top: 28px; }
 .review-group { border-top: 1px solid var(--line); }
 .review-group:last-child { border-bottom: 1px solid var(--line); }
-.review-group summary { padding-block: 14px; font-size: 14px; line-height: 1.5; }
+.review-group summary { padding-block: 14px; line-height: 1.5; }
+.review-group summary h2 { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; margin: 0; }
 .review-row { display: grid; grid-template-columns: 22px 1fr 36px; gap: 14px; align-items: start; border-top: 1px solid #e7eae3; padding: 18px 0; }
 .review-index { font-size: 12px; color: #73806b; padding-top: 3px; }
 .review-row h3 { font-size: 14px; line-height: 1.5; }
@@ -177,7 +178,6 @@ details[open] > summary .expand-mark { transform: rotate(45deg); }
   .result-main > p { font-size: 15px; }
   .result-actions .button { font-size: 13px; padding: 11px 16px; }
   .result-actions > .text-button { margin-left: 0; font-size: 13px; }
-  .review-group summary { font-size: 13px; }
   .review-row { gap: 9px; grid-template-columns: 18px 1fr 30px; }
   .review-row h3 { font-size: 13px; }
   .review-row p { font-size: 13px; }

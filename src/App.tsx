@@ -75,9 +75,8 @@ function ResultsView({ attempt, results, onEdit, onRestart }: {
       <button className="text-button" onClick={() => { copyRef.current?.focus(); copyRef.current?.select(); }}>Select all text</button>
     </div>}
     <section className="answer-review" aria-labelledby="review-title">
-      <h2 id="review-title">Review your answers</h2>
       <details className="review-group">
-        <summary><span>All questions</span><span className="expand-mark" aria-hidden="true">+</span></summary>
+        <summary><h2 id="review-title">Review your answers<span className="expand-mark" aria-hidden="true">+</span></h2></summary>
         {QUESTIONS.map(q => {
           const option = q.options[attempt.answers[q.id]!];
           return <div className="review-row" key={q.id}>

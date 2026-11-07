@@ -90,7 +90,8 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await expect(page.getByRole('heading', { name: 'Housing supply choices by topic' })).toHaveCount(0);
   await expect(page.locator('.domain-section')).toHaveCount(0);
   await expect(page.locator('.review-group')).toHaveCount(1);
-  await expect(page.locator('.review-group summary')).toHaveText('All questions+');
+  await expect(page.locator('.review-group summary')).toContainText('Review your answers');
+  await expect(page.getByText('All questions', { exact: true })).toHaveCount(0);
   for (const [i, q] of QUESTIONS.entries()) {
     const row = page.locator('.review-row').nth(i);
     await expect(row.locator('.review-index')).toHaveText(String(i + 1));
@@ -131,13 +132,19 @@ test('complete quiz: select, back, edit, refresh, resume, results, copy, and res
   await expect(page.getByLabel('Your share text')).toBeVisible();
   expect(await page.getByLabel('Your share text').inputValue()).toContain(`1 of ${QUESTION_COUNT} scenarios (${100 / QUESTION_COUNT}%)`);
   await expect(page.locator('.review-group')).not.toHaveAttribute('open');
-  await page.locator('.review-group').locator('summary').click();
+  await page.locator('.review-group summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.review-row').first()).toBeVisible();
+  await expect(page.locator('.review-row').last()).toBeVisible();
+  await page.keyboard.press('Space');
+  await expect(page.locator('.review-row').first()).not.toBeVisible();
+  await page.getByRole('heading', { name: 'Review your answers', exact: true }).click();
   await page.getByRole('button', { name: 'Edit answer 1: A mature tree', exact: true }).click();
   await page.locator('[data-answer="allow_more"] button').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(QUESTIONS[1].title);
   await page.getByRole('button', { name: 'Return to results' }).click();
   await expect(page.locator('.result-main')).toContainText(`2 of ${QUESTION_COUNT} scenarios`);
-  await page.locator('.review-group').locator('summary').click();
+  await page.getByRole('heading', { name: 'Review your answers', exact: true }).click();
   await page.getByRole('button', { name: `Edit answer ${QUESTION_COUNT}: ${QUESTIONS.at(-1)!.title}`, exact: true }).click();
   await page.locator('[data-answer="require_feature"] button').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your choices');

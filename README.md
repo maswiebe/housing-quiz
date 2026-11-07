@@ -1,6 +1,6 @@
 # The housing tradeoff
 
-A responsive, illustrated housing tradeoff quiz. Ten hypothetical choices ask what a city should permit or require, followed by a neutral overall result and one expandable “All questions” list for reviewing and editing answers.
+A responsive, illustrated housing tradeoff quiz. Ten hypothetical choices ask what a city should permit or require, followed by a neutral overall result. Click “Review your answers” to expand or collapse the list of answers and edit any choice.
 
 Selecting an answer saves it immediately, shows a checkmark and a green selected state for 450 ms, then advances to the next question. The final answer opens the results after the same confirmation. Choices are briefly disabled to prevent duplicate clicks; leaving the question cancels the pending advance. Back returns to earlier questions; Next remains available when reviewing an already answered question.
 
